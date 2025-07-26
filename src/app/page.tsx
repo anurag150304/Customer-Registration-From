@@ -133,6 +133,7 @@ function Home() {
         setValue("fullname", "");
         setValue("email", "");
         setValue("password", "");
+        setValue("confirmPassword", "");
         setValue("phone", "");
         setValue("dob", "");
         setValue("address", "");
