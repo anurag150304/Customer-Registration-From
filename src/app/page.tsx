@@ -1,5 +1,8 @@
 "use client"
 
+// Importing necessary modules and components
+// "use client" directive ensures this file is treated as a client-side component
+
 import LocationContextProvider, { LocationContext } from "@/context/location.context";
 import { Customer, customerSchema } from "@/validations/customer.validation";
 import ToastContextProvider, { ToastContext } from "@/context/toast.context";
@@ -16,6 +19,7 @@ import Toast from "@/components/Toast";
 import Map from "@/components/Map";
 import axios from "axios";
 
+// HomePage component wraps the Home component with context providers for Toast and Location
 export default function HomePage() {
     return (
         <ToastContextProvider>
@@ -23,22 +27,30 @@ export default function HomePage() {
                 <Home />
             </LocationContextProvider>
         </ToastContextProvider>
-    )
+    );
 }
 
+// Main Home component
 function Home() {
+    // React Hook Form setup with Zod schema validation
     const { register, handleSubmit, formState: { errors }, setValue } = useForm<Customer>({
         resolver: zodResolver(customerSchema),
         mode: "onSubmit"
     });
 
+    // State variables for map coordinates, map loading status, and form submission loading state
     const [mapCoords, setMapCoords] = useState<{ lat: number, lng: number }>({ lat: 0, lng: 0 });
     const [mapLoaded, setMapLoaded] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    // Contexts for location and toast notifications
     const locationCtx = useContext(LocationContext);
     const toastCtx = useContext(ToastContext);
 
+    // Effect to set browser information in the form
     useEffect(() => setValue("browserInfo", navigator.userAgent, { shouldValidate: true }), [setValue]);
+
+    // Effect to fetch and set address based on location context coordinates
     useEffect(() => {
         const { lat, lng } = locationCtx?.coords || {};
         if (!lat || !lng) return;
@@ -47,6 +59,7 @@ function Home() {
             const address = await getAddressFromCoords(lat, lng);
 
             if (address?.error) {
+                // Show error toast if address is not found
                 toastCtx?.setToast({
                     init: true,
                     heading: "Address Not Found",
@@ -56,6 +69,7 @@ function Home() {
                 return;
             }
 
+            // Update form values and map state with fetched address and coordinates
             setValue("lat", String(lat), { shouldValidate: true });
             setValue("lng", String(lng), { shouldValidate: true });
             setValue("address", address, { shouldValidate: true });
@@ -66,23 +80,26 @@ function Home() {
         fetchAndSetAddress();
     }, [locationCtx?.coords?.lat, locationCtx?.coords?.lng, locationCtx?.coords, setValue, toastCtx]);
 
+    // Form submission handler
     const onSubmit = (data: Customer) => {
-        setIsLoading(true);
+        setIsLoading(true); // Show loading indicator
 
         axios.post("/api/v1/customer/register", data)
             .then((res) => {
+                // Show success toast on successful account creation
                 toastCtx?.setToast({
                     init: true,
                     heading: "Account Created",
                     message: res.data.message,
                     type: "success",
                 });
-                resetForm();
+                resetForm(); // Reset form fields
             })
             .catch((err) => {
                 const errorData = err?.response?.data;
 
                 if (errorData?.errors && Array.isArray(errorData.errors)) {
+                    // Show validation warnings for each error
                     errorData.errors.forEach((val: string) => {
                         toastCtx?.setToast({
                             init: true,
@@ -92,6 +109,7 @@ function Home() {
                         });
                     });
                 } else if (errorData?.error) {
+                    // Show error toast for account creation failure
                     toastCtx?.setToast({
                         init: true,
                         heading: "Account Creation Failed",
@@ -99,6 +117,7 @@ function Home() {
                         type: "error",
                     });
                 } else {
+                    // Show generic error toast
                     toastCtx?.setToast({
                         init: true,
                         heading: "Operation Failed",
@@ -106,10 +125,10 @@ function Home() {
                         type: "error",
                     });
                 }
-            }).finally(() => setIsLoading(false));
+            }).finally(() => setIsLoading(false)); // Hide loading indicator
     };
 
-
+    // Function to reset form fields and map state
     function resetForm() {
         setValue("fullname", "");
         setValue("email", "");
@@ -125,8 +144,8 @@ function Home() {
 
     return (
         <main className="relative bg-[#a0a0a018] flex justify-center items-start p-5">
-            {isLoading && <Loader />}
-            {toastCtx?.toast.init && <Toast />}
+            {isLoading && <Loader />} {/* Show loader during form submission */}
+            {toastCtx?.toast.init && <Toast />} {/* Display toast notifications */}
             <div className="h-fit w-full flex justify-center items-center">
                 <div className="w-1/2 max-md:w-[70%] max-sm:w-[80%] shadow-lg bg-white rounded-lg p-6 flex flex-col justify-center items-center gap-7">
                     <div className="w-full flex flex-col justify-center items-center gap-2">
@@ -134,6 +153,7 @@ function Home() {
                         <h2 className="text-[#0000008d]">Create your account to get started</h2>
                     </div>
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center items-start gap-3 w-full">
+                        {/* Personal Information Section */}
                         <FormSection
                             heading="Personal Information"
                             input={[
@@ -210,7 +230,8 @@ function Home() {
                                 />
                             ]}
                         />
-                        {mapLoaded && mapCoords.lat !== 0 && mapCoords.lng !== 0 && (<Map userPosition={mapCoords} />)}
+                        {mapLoaded && mapCoords.lat !== 0 && mapCoords.lng !== 0 && (<Map userPosition={mapCoords} />)} {/* Map Component */}
+                        {/* Location Information Section */}
                         <FormSection
                             heading="Location Information"
                             input={[
@@ -234,6 +255,7 @@ function Home() {
                                 />
                             ]}
                         />
+                        {/* System Information Section */}
                         <FormSection
                             heading="System Information"
                             input={[

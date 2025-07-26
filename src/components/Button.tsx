@@ -2,8 +2,9 @@
 "use client";
 import { ButtonType } from "@/types/common.types";
 import { useRouter } from "next/navigation";
+import { memo } from "react";
 
-export default function Button(props: Partial<ButtonType>) {
+function Button(props: Partial<ButtonType>) {
     const router = useRouter();
     const performTask = () => {
         if (props.task) return router.push(props.task);
@@ -30,3 +31,5 @@ export default function Button(props: Partial<ButtonType>) {
         </button>
     )
 }
+
+export default memo(Button);
