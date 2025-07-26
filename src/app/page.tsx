@@ -151,7 +151,7 @@ function Home() {
                 <div className="w-1/2 max-md:w-[70%] max-sm:w-full shadow-lg bg-white rounded-xl p-6 flex flex-col justify-center items-center gap-7">
                     <div className="w-full flex flex-col justify-center items-center gap-2">
                         <h1 className="text-3xl max-[425px]:text-2xl font-bold text-center text-[#6b26d9]">Customer Registration</h1>
-                        <h2 className="text-[#0000008d]">Create your account to get started</h2>
+                        <h2 className="text-[#0000008d]">Customer Onboarding – Sales Executive Use</h2>
                     </div>
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center items-start gap-3 w-full">
                         {/* Personal Information Section */}
