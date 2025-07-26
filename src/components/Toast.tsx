@@ -47,8 +47,8 @@ export default function Toast() {
             initial={{ y: 120, x: 0 }} // Initial position of the toast
             animate={controls} // Animation controls for managing toast movement
             className={`sm:w-[40%] md:w-[35%] max-sm:w-[65%] fixed right-5 bottom-5
-        shadow-lg p-5 rounded-md flex justify-start items-center border-2
-        gap-4 transition-all duration-300
+        shadow-lg p-5 rounded-md flex justify-start items-start border-2
+        gap-4 transition-all duration-300 z-40
         ${toastCtx.toast.type === "success"
                     ? "border-[#6b26d9] bg-[#f8f3ff]" // Styling for success toast
                     : toastCtx.toast.type === "error"
@@ -64,7 +64,7 @@ export default function Toast() {
             {/* Render the toast heading and message */}
             <div className="flex flex-col justify-center items-start gap-1">
                 <h1 className="font-medium">{toastCtx?.toast.heading}</h1>
-                <p className="text-sm">{toastCtx?.toast.message}</p>
+                <p className="text-[0.75rem]">{toastCtx?.toast.message}</p>
             </div>
         </motion.div>
     );

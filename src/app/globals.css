@@ -28,20 +28,20 @@
 
 @media Screen and (min-width: 576px) and (max-width: 955.5px) {
     html {
-        font-size: 13px;
+        font-size: 15px;
     }
 
 }
 
 @media Screen and (min-width: 452px) and (max-width: 659.5px) {
     html {
-        font-size: 12px;
+        font-size: 14px;
     }
 }
 
 
 @media screen and (max-width: 451.5px) {
     html {
-        font-size: 10px;
+        font-size: 13px;
     }
 }

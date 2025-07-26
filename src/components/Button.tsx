@@ -24,7 +24,7 @@ function Button(props: Partial<ButtonType>) {
                 ${props.radius}
                 ${props.className}
                 cursor-pointer
-                flex justify-center items-center gap-2`}
+                flex justify-center items-center gap-2 max-[425px]:text-[0.63rem]`}
             onClick={props.onClick ?? performTask}>
             {props.icon}
             {props.text}

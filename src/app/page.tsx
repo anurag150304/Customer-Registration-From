@@ -144,13 +144,13 @@ function Home() {
     }
 
     return (
-        <main className="relative bg-[#a0a0a018] flex justify-center items-start p-5">
+        <main className="relative bg-[#a0a0a018] flex justify-center items-start p-9">
             {isLoading && <Loader />} {/* Show loader during form submission */}
             {toastCtx?.toast.init && <Toast />} {/* Display toast notifications */}
             <div className="h-fit w-full flex justify-center items-center">
-                <div className="w-1/2 max-md:w-[70%] max-sm:w-[80%] shadow-lg bg-white rounded-lg p-6 flex flex-col justify-center items-center gap-7">
+                <div className="w-1/2 max-md:w-[70%] max-sm:w-full shadow-lg bg-white rounded-xl p-6 flex flex-col justify-center items-center gap-7">
                     <div className="w-full flex flex-col justify-center items-center gap-2">
-                        <h1 className="text-3xl font-bold text-center text-[#6b26d9]">Customer Registration</h1>
+                        <h1 className="text-3xl max-[425px]:text-2xl font-bold text-center text-[#6b26d9]">Customer Registration</h1>
                         <h2 className="text-[#0000008d]">Create your account to get started</h2>
                     </div>
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center items-start gap-3 w-full">

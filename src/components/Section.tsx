@@ -43,8 +43,8 @@ function FormSection({ heading, input }: { heading: string, input: JSX.Element[]
                         {item}
                         {/* Additional information for "System Information" section */}
                         {heading === "System Information" &&
-                            <p className="text-sm text-[#000000aa] bg-[#fbfbfc] shadow rounded-md p-2 flex justify-start items-start gap-2">
-                                <RiErrorWarningLine className="text-3xl" />
+                            <p className="text-sm text-[#000000aa] bg-[#fbfbfc] shadow rounded-md p-2 flex justify-start items-start gap-2 max-[425px]:text-sm">
+                                <RiErrorWarningLine className="text-3xl max-[425px]:text-2xl" />
                                 Your browser information is automatically detected and used for security purposes. Location data helps us provide better services in your area.
                             </p>}
                     </Fragment>
