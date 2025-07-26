@@ -12,9 +12,9 @@ export async function POST(req: NextRequest) {
 
     try {
 
-        const customerExists = await dbClient.customer.findFirst({ where: { email: data.email } });
+        const customerExists = await dbClient.customer.findFirst({ where: { email: data.email, phone: data.phone } });
         if (customerExists) {
-            throw new errHandler("Customer with this email already exists!", 409);
+            throw new errHandler("Customer with this email or phone already exists.", 400);
         }
         const hashedPassword = await bcrypt.hash(data.password, 10);
 
