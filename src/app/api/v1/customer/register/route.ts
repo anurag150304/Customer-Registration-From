@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
                 password: hashedPassword,
                 phone: data.phone,
                 address: data.address,
+                gender: data.gender,
                 dob: new Date(data.dob),
                 lat: +data.lat,
                 lng: +data.lng,
