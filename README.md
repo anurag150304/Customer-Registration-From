@@ -1,36 +1,119 @@
+# Customer Registration From
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Project Overview
+
+This project is a web application built with Next.js, Prisma, and TailwindCSS. It integrates Google Maps and provides a modular architecture for scalability and maintainability.
+
+### Key Features
+- **Frontend**: Built with Next.js and React, featuring reusable components.
+- **Backend**: RESTful API structure with Prisma ORM for database interactions.
+- **Database**: PostgreSQL database managed via Prisma.
+- **Styling**: TailwindCSS for modern and responsive design.
+- **Validation**: `zod` for schema validation.
+- **Authentication**: Password hashing with `bcrypt`.
+- **Google Maps Integration**: Powered by `@react-google-maps/api`.
+- **State Management**: Context API for managing global state.
+- **Forms**: `react-hook-form` for form handling and validation.
+
+## Project Structure
+
+```
+prisma/
+  schema.prisma       # Database schema
+  migrations/         # Database migrations
+src/
+  app/
+    api/              # API routes
+    globals.css       # Global styles
+    page.tsx          # Main entry point
+  components/         # Reusable UI components
+  config/             # Configuration files
+  context/            # Context API for state management
+  services/           # Utility functions and services
+  types/              # TypeScript type definitions
+  validations/        # Validation schemas
+```
+
+## Environment Variables
+
+The following environment variables are required to run the project:
+
+```env
+DATABASE_URL="postgresql://<username>:<password>@localhost:5432/Assignment?schema=public"
+NEXTAUTH_URL=http://localhost:3000
+NODE_ENV=development
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<your-google-maps-api-key>
+```
+
+## Application Flow
+
+### Routes
+- The API routes are defined under `src/app/api/v1/customer/register/route.ts`.
+- These routes handle customer registration, including validation and database interactions.
+
+### Components
+- Reusable components like `Button`, `Input`, `LoadingBar`, `Map`, `Section`, and `Toast` are located in `src/components/`.
+- These components are used across the application to maintain consistency and modularity.
+
+### Map Integration
+- Google Maps is integrated using the `@react-google-maps/api` library.
+- The `Map` component in `src/components/Map.tsx` is responsible for rendering the map and handling location-based features.
+
+### Database Schema
+- The database schema is defined in `prisma/schema.prisma`.
+- The `Customer` model includes fields like `id`, `fullName`, `email`, `phone`, `gender`, `dob`, `address`, `password`, `lat`, `lng`, `browserInfo`, and `createdAt`.
+- Prisma is used to interact with the database, ensuring type safety and ease of use.
+
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Next.js
+- Node.js
+- PostgreSQL
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Installation
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. Install dependencies:
+   ```bash
+   pnpm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Set up the database:
+   ```bash
+   pnpm prisma migrate dev
+   ```
+
+4. Start the development server:
+   ```bash
+   pnpm dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Scripts
+
+- `pnpm dev`: Start the development server.
+- `pnpm build`: Build the application for production.
+- `pnpm start`: Start the production server.
+- `pnpm lint`: Run ESLint to lint the code.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+To learn more about the technologies used in this project, check out the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [TailwindCSS Documentation](https://tailwindcss.com/docs)
+- [React Hook Form Documentation](https://react-hook-form.com/get-started)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License.

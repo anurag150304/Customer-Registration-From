@@ -1,103 +1,270 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import LocationContextProvider, { LocationContext } from "@/context/location.context";
+import { Customer, customerSchema } from "@/validations/customer.validation";
+import ToastContextProvider, { ToastContext } from "@/context/toast.context";
+import { getAddressFromCoords } from "@/services/getLocationAddress";
+import { IoMdCheckmarkCircleOutline } from "react-icons/io";
+import { useContext, useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod"
+import FormSection from "@/components/Section"
+import Loader from "@/components/LoadingBar";
+import { useForm } from "react-hook-form";
+import Button from "@/components/Button";
+import Input from "@/components/Input";
+import Toast from "@/components/Toast";
+import Map from "@/components/Map";
+import axios from "axios";
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+export default function HomePage() {
+    return (
+        <ToastContextProvider>
+            <LocationContextProvider>
+                <Home />
+            </LocationContextProvider>
+        </ToastContextProvider>
+    )
+}
+
+function Home() {
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm<Customer>({
+        resolver: zodResolver(customerSchema),
+        mode: "onSubmit"
+    });
+
+    const [mapCoords, setMapCoords] = useState<{ lat: number, lng: number }>({ lat: 0, lng: 0 });
+    const [mapLoaded, setMapLoaded] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const locationCtx = useContext(LocationContext);
+    const toastCtx = useContext(ToastContext);
+
+    useEffect(() => setValue("browserInfo", navigator.userAgent, { shouldValidate: true }), [setValue]);
+    useEffect(() => {
+        const { lat, lng } = locationCtx?.coords || {};
+        if (!lat || !lng) return;
+
+        const fetchAndSetAddress = async () => {
+            const address = await getAddressFromCoords(lat, lng);
+
+            if (address?.error) {
+                toastCtx?.setToast({
+                    init: true,
+                    heading: "Address Not Found",
+                    message: "Address could not be found. Please try again.",
+                    type: "error",
+                });
+                return;
+            }
+
+            setValue("lat", String(lat), { shouldValidate: true });
+            setValue("lng", String(lng), { shouldValidate: true });
+            setValue("address", address, { shouldValidate: true });
+            setMapCoords({ lat, lng });
+            setMapLoaded(true);
+        };
+
+        fetchAndSetAddress();
+    }, [locationCtx?.coords?.lat, locationCtx?.coords?.lng, locationCtx?.coords, setValue, toastCtx]);
+
+    const onSubmit = (data: Customer) => {
+        setIsLoading(true);
+
+        axios.post("/api/v1/customer/register", data)
+            .then((res) => {
+                toastCtx?.setToast({
+                    init: true,
+                    heading: "Account Created",
+                    message: res.data.message,
+                    type: "success",
+                });
+                resetForm();
+            })
+            .catch((err) => {
+                const errorData = err?.response?.data;
+
+                if (errorData?.errors && Array.isArray(errorData.errors)) {
+                    errorData.errors.forEach((val: string) => {
+                        toastCtx?.setToast({
+                            init: true,
+                            heading: "Validation Warning",
+                            message: val,
+                            type: "warning",
+                        });
+                    });
+                } else if (errorData?.error) {
+                    toastCtx?.setToast({
+                        init: true,
+                        heading: "Account Creation Failed",
+                        message: errorData.error,
+                        type: "error",
+                    });
+                } else {
+                    toastCtx?.setToast({
+                        init: true,
+                        heading: "Operation Failed",
+                        message: "Something went wrong. Please try again.",
+                        type: "error",
+                    });
+                }
+            }).finally(() => setIsLoading(false));
+    };
+
+
+    function resetForm() {
+        setValue("fullname", "");
+        setValue("email", "");
+        setValue("password", "");
+        setValue("phone", "");
+        setValue("dob", "");
+        setValue("address", "");
+        setValue("lat", "");
+        setValue("lng", "");
+        setMapCoords({ lat: 0, lng: 0 });
+        setMapLoaded(false);
+    }
+
+    return (
+        <main className="relative bg-[#a0a0a018] flex justify-center items-start p-5">
+            {isLoading && <Loader />}
+            {toastCtx?.toast.init && <Toast />}
+            <div className="h-fit w-full flex justify-center items-center">
+                <div className="w-1/2 max-md:w-[70%] max-sm:w-[80%] shadow-lg bg-white rounded-lg p-6 flex flex-col justify-center items-center gap-7">
+                    <div className="w-full flex flex-col justify-center items-center gap-2">
+                        <h1 className="text-3xl font-bold text-center text-[#6b26d9]">Customer Registration</h1>
+                        <h2 className="text-[#0000008d]">Create your account to get started</h2>
+                    </div>
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center items-start gap-3 w-full">
+                        <FormSection
+                            heading="Personal Information"
+                            input={[
+                                <Input
+                                    key={0}
+                                    label="Full Name"
+                                    type="text"
+                                    placeholder="Enter your full name"
+                                    register={register}
+                                    registerType="fullname"
+                                    errors={errors}
+                                />,
+                                <Input
+                                    key={1}
+                                    label="Email Address"
+                                    type="email"
+                                    placeholder="your.email@gmail.com"
+                                    register={register}
+                                    registerType="email"
+                                    errors={errors}
+                                />,
+                                <Input
+                                    key={2}
+                                    label="Phone Number"
+                                    type="tel"
+                                    placeholder="Your phone number"
+                                    register={register}
+                                    registerType="phone"
+                                    errors={errors}
+                                />,
+                                <Input
+                                    key={3}
+                                    label="Gender"
+                                    type="select"
+                                    placeholder="Your gender"
+                                    register={register}
+                                    registerType="gender"
+                                    errors={errors}
+                                />,
+                                <Input
+                                    key={4}
+                                    label="Password"
+                                    type="password"
+                                    placeholder="Create a secure password"
+                                    register={register}
+                                    registerType="password"
+                                    errors={errors}
+                                />,
+                                <Input
+                                    key={5}
+                                    label="Confirm Password"
+                                    type="password"
+                                    placeholder="Confirm your password"
+                                    register={register}
+                                    registerType="confirmPassword"
+                                    errors={errors}
+                                />,
+                                <Input
+                                    key={6}
+                                    label="Date of Birth"
+                                    type="date"
+                                    register={register}
+                                    registerType="dob"
+                                    errors={errors}
+                                />,
+                                <Input
+                                    key={7}
+                                    label="Address"
+                                    type="textarea"
+                                    placeholder="Auto-filled from location"
+                                    register={register}
+                                    registerType="address"
+                                    errors={errors}
+                                />
+                            ]}
+                        />
+                        {mapLoaded && mapCoords.lat !== 0 && mapCoords.lng !== 0 && (<Map userPosition={mapCoords} />)}
+                        <FormSection
+                            heading="Location Information"
+                            input={[
+                                <Input
+                                    key={0}
+                                    label="Latitude"
+                                    type="text"
+                                    placeholder="Auto-filled from location"
+                                    register={register}
+                                    registerType="lat"
+                                    errors={errors}
+                                />,
+                                <Input
+                                    key={1}
+                                    label="Longitude"
+                                    type="text"
+                                    placeholder="Auto-filled from location"
+                                    registerType="lng"
+                                    register={register}
+                                    errors={errors}
+                                />
+                            ]}
+                        />
+                        <FormSection
+                            heading="System Information"
+                            input={[
+                                <Input
+                                    key={10}
+                                    label="Browser Information"
+                                    type="text"
+                                    placeholder="Your browser"
+                                    register={register}
+                                    registerType="browserInfo"
+                                    errors={errors}
+                                />
+                            ]}
+                        />
+                        <Button
+                            type="submit"
+                            text="Create Account"
+                            textColor="text-white"
+                            textSize="text-lg"
+                            fontWeignt="font-medium"
+                            Vpad="py-1.5"
+                            borderLine="border-1"
+                            borderColor="border-[#6b26d9]"
+                            backgroundColor="bg-[#6b26d9]"
+                            radius="rounded-md"
+                            icon={<IoMdCheckmarkCircleOutline className="text-xl" />}
+                            className="w-full hover:scale-103 transition-all"
+                        />
+                    </form>
+                </div>
+            </div>
+        </main>
+    );
 }
