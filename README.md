@@ -78,7 +78,7 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<your-google-maps-api-key>
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/anurag150304/Customer-Registration-From.git
    ```
 
 2. Install dependencies:
