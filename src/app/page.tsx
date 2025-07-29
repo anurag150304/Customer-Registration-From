@@ -1,8 +1,5 @@
 "use client"
-
-// Importing necessary modules and components
 // "use client" directive ensures this file is treated as a client-side component
-
 import LocationContextProvider, { LocationContext } from "@/context/location.context";
 import { Customer, customerSchema } from "@/validations/customer.validation";
 import ToastContextProvider, { ToastContext } from "@/context/toast.context";
@@ -261,7 +258,7 @@ function Home() {
                             heading="System Information"
                             input={[
                                 <Input
-                                    key={10}
+                                    key={0}
                                     label="Browser Information"
                                     type="text"
                                     placeholder="Your browser"
